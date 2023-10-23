@@ -1,0 +1,56 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 4
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,16,2);
+int p =0;
+void setup(void){
+  pinMode(9,OUTPUT);
+  digitalWrite(9,LOW);
+  Serial.begin(9600);
+  sensors.begin();
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(3,0);
+  lcd.print("SMART JACKET");
+  lcd.setCursor(3,1);
+  lcd.print("INDIAN ARMY");
+  delay(2000);
+  lcd.clear();
+  
+}
+
+void loop(void){ 
+  sensors.requestTemperatures();   
+  Serial.print("Celsius temperature: ");
+  Serial.println(sensors.getTempCByIndex(0)); 
+  lcd.setCursor(0,0);
+  lcd.print("TEMPERATURE");
+  lcd.setCursor(12,0); 
+  lcd.print(sensors.getTempCByIndex(0));
+  lcd.setCursor(0,1);
+  lcd.print("                ");
+ while(sensors.getTempCByIndex(0) >38){
+     lcd.clear();
+     sensors.requestTemperatures();   
+     digitalWrite(9,HIGH);
+     lcd.clear();
+     lcd.setCursor(0,0);
+     lcd.print("TEMPERATURE");
+     lcd.setCursor(12,0);
+     lcd.print(sensors.getTempCByIndex(0));
+     lcd.setCursor(0,1);
+     lcd.print("CUTOFF MODE");
+     delay(500);     
+    }
+  p = analogRead(A0);
+  p = map(p,0,1023,100,1000);
+  digitalWrite(9,LOW);
+  delay(1000);
+  digitalWrite(9,HIGH);
+  delay(1000);  
+}
